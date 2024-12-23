@@ -79,7 +79,8 @@ pipeline {
         stage('Setup') {
             steps {
                 sh '''
-                docker --version || sudo apt update && sudo apt install -y docker.io
+                sudo apt update && sudo apt upgrade -y
+                sudo apt install -y docker.io
                 sudo systemctl start docker
                 sudo systemctl enable docker
                 '''
@@ -87,13 +88,30 @@ pipeline {
         }
         stage('Install Nginx') {
             steps {
-                sh '''
-                sudo docker run --name nginx -d -p 80:80 nginx
-                '''
+                script {
+                    // Check if the container exists
+                    def containerExists = sh(script: "sudo docker ps -a -q -f name=nginx", returnStdout: true).trim()
+                    
+                    if (containerExists) {
+                        echo "Stopping and removing existing 'nginx' container..."
+                        sh '''
+                        sudo docker stop nginx
+                        sudo docker rm nginx
+                        '''
+                    } else {
+                        echo "Container 'nginx' does not exist. Proceeding to run a new container."
+                    }
+
+                    // Start a new Nginx container
+                    sh '''
+                    sudo docker run --name nginx -d -p 80:80 nginx
+                    '''
+                }
             }
         }
     }
 }
+
 ```
 Save and run the pipeline. This will install and run an Nginx container on the node.
 
