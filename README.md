@@ -1,4 +1,4 @@
-# Jenkins Setup and Pipeline Creation test
+# Jenkins Setup and Pipeline Creation
 
 ## Steps to Set Up Jenkins and Create a Basic Pipeline
 
